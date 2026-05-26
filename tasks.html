@@ -2,74 +2,128 @@
 <html>
 
 <head>
-
     <title>Tasks</title>
-
     <link rel="stylesheet" href="style.css">
-
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
 
 <div class="container">
 
-    <!-- SIDEBAR -->
-
     <div class="sidebar">
-
         <h2>AI Workspace</h2>
-
         <a href="index.html">
             <i class="fa fa-home"></i> Dashboard
         </a>
-
         <a href="tasks.html">
             <i class="fa fa-list"></i> Tasks
         </a>
-
         <a href="meetings.html">
             <i class="fa fa-calendar"></i> Meetings
         </a>
-
         <a href="analytics.html">
             <i class="fa fa-chart-bar"></i> Analytics
         </a>
-
         <a href="settings.html">
             <i class="fa fa-gear"></i> Settings
         </a>
-
     </div>
 
-    <!-- MAIN -->
-
     <div class="main">
-
-        <h1>Tasks</h1>
-
         <div class="task-box">
 
-            <div class="task">
-                Complete Frontend Design
-            </div>
+            <h1>Tasks</h1>
+            <input type="text" id="taskinput" placeholder="Task Name" style="width: 40%; padding: 10px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #f7f5f5; color: black;"> 
+            
+            <button id="addtaskbutton" style="background-color: #8b5cf6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">Add Task</button>
+            
+            <ul id="tasklist" style="list-style-type: none; padding: 0; margin-top: 20px;">
+                </ul>
 
-            <div class="task">
-                Create Login Page
-            </div>
+    <script> 
+         // A helper function that executes whenever a change happens to the field
+         function inputChange(){
+            console.log("something is being entered into the field");
+          }
 
-            <div class="task">
-                Connect Backend
-            </div>
+          /*  STEP 1: SELECTING THE DOM ELEMENTS
+            We grab the HTML tags by their ID attributes so JavaScript can control them.*/      
+          // Grabbing the text input box element
+        const taskinput = document.getElementById('taskinput');
+                
+         // Grabbing the clickable action button element
+         const addtaskbutton = document.getElementById('addtaskbutton');
+                
+         // Grabbing the target parent <ul> container where list items append
+         const tasklist = document.getElementById('tasklist');
 
+        /*  STEP 2: ADDING AN EVENT LISTENER FOR CREATING TASKS
+           We tell the browser to wait and watch for a 'click' on the button. */
+        addtaskbutton.addEventListener('click', () => {
+                    
+            // Grab the text from the input bar and trim off unnecessary trailing whitespaces
+         const taskText = taskinput.value.trim();
+                    
+         // SAFETY LOGIC EXPLANATION: If the user leaves the text field completely blank...
+         if(taskText === '') {
+         // Alert them with an error popup warning
+          alert('Please Enter a Task!');
+          // Immediately stop executing the function so an empty task box isn't created
+          return;     }
+      /*  STEP 3: DYNAMIC ELEMENT GENERATION into the view */
+                    
+     // Create an empty list item element (<li>) in memory
+         const newLi = document.createElement('li');
+                    
+         newLi.style.display = 'flex';                  
+         newLi.style.justifyContent = 'space-between';   
+        newLi.style.padding = '10px';                  
+        newLi.style.backgroundColor = '#1e293b';       
+         newLi.style.marginBottom = '10px';            
+        newLi.style.borderRadius = '5px';              
+
+        // Create an inline text wrapper element (<span>) to safe-keep our text
+        const taskspan = document.createElement('span');
+                    
+        // Insert the user's typed task string directly into the text content of the span
+        taskspan.textContent = taskText;
+                        
+        // Create an action button element (<button>) used to remove the row later
+        const deletetaskbutton = document.createElement('button');
+                    
+         // Label the button explicitly so users know what it does
+         deletetaskbutton.textContent = 'Delete'; 
+                    
+        // Style the delete button component so it catches the eye as a critical action
+        deletetaskbutton.style.backgroundColor = 'red';   
+        deletetaskbutton.style.color = 'white';           
+        deletetaskbutton.style.border = 'none';           
+        deletetaskbutton.style.padding = '5px 10px';      
+        deletetaskbutton.style.borderRadius = '4px';      
+        deletetaskbutton.style.cursor = 'pointer';        
+
+        /* STEP 4: NESTED EVENT LISTENER (HANDLING REMOVAL) Each specific task gets its own dedicated removal rule.   */
+         deletetaskbutton.addEventListener('click', () => {
+        // When THIS specific delete button is clicked, tell the main <ul> container 
+     // to target and permanently destroy its own row item wrapper ('newLi')
+        tasklist.removeChild(newLi);
+           });
+
+ /*  STEP 5: ASSEMBLING AND SHOWING THE DATA Connecting all components to the physical page display structure. */
+                    
+        // Insert the text wrapper inside our row box element
+         newLi.appendChild(taskspan);
+         newLi.appendChild(deletetaskbutton);
+                    
+         tasklist.appendChild(newLi);
+        taskinput.value = '';
+                }); 
+            </script> 
         </div>
-
     </div>
 
 </div>
 
 </body>
-
 </html>

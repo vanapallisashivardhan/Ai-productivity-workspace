@@ -1,197 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-
-    <!-- CONNECT CSS FILE -->
-
+    
     <link rel="stylesheet" href="style.css">
-    <!-- FONT AWESOME -->
-
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
 
     <div class="container">
 
-        <!-- SIDEBAR -->
-
         <div class="sidebar">
-
             <h2>AI Workspace</h2>
 
-            <!-- DASHBOARD PAGE -->
-
-            <a href="index.html">
-                <i class="fa fa-home"></i>
-                Dashboard
+            <a href="index.html" class="active">
+                <i class="fa fa-home"></i> Dashboard
             </a>
-
-            <!-- TASKS PAGE -->
 
             <a href="tasks.html">
-                <i class="fa fa-list"></i>
-                Tasks
+                <i class="fa fa-list"></i> Tasks
             </a>
-
-            <!-- MEETINGS PAGE -->
 
             <a href="meetings.html">
-                <i class="fa fa-calendar"></i>
-                Meetings
+                <i class="fa fa-calendar"></i> Meetings
             </a>
-
-            <!-- ANALYTICS PAGE -->
 
             <a href="analytics.html">
-                <i class="fa fa-chart-bar"></i>
-                Analytics
+                <i class="fa fa-chart-bar"></i> Analytics
             </a>
-
-            <!-- SETTINGS PAGE -->
 
             <a href="settings.html">
-                <i class="fa fa-gear"></i>
-                Settings
+                <i class="fa fa-gear"></i> Settings
             </a>
-
         </div>
-
-        <!-- MAIN CONTENT -->
 
         <div class="main">
 
-            <h1>Dashboard</h1>
-
-            <!-- HERO SECTION -->
-
-            <div class="hero">
-
-                <h2>AI Productivity Workspace</h2>
-
-                <p>
-                    Manage your tasks, meetings and productivity.
-                </p>
-
+            <div class="hero" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h2>AI Productivity Workspace</h2>
+                    <p>Manage your tasks, meetings and productivity via natural speech commands.</p>
+                </div>
+                <button id="voice-control-trigger" style="background-color: #8b5cf6; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa fa-microphone"></i> Start Voice Command
+                </button>
             </div>
 
-            <!-- CARDS -->
-
             <div class="cards">
-
                 <div class="card">
-
-                    <h3>24</h3>
-
+                    <h3 id="completed-tasks-count">24</h3>
                     <p>Tasks Completed</p>
-
                 </div>
 
                 <div class="card">
-
-                    <h3>12</h3>
-
+                    <h3 id="scheduled-meetings-count">12</h3>
                     <p>Meetings Scheduled</p>
-
                 </div>
 
                 <div class="card">
-
-                    <h3>85%</h3>
-
-                    <p>Productivity</p>
-
+                    <h3 id="productivity-rate">85%</h3>
+                    <p>Productivity Rate</p>
                 </div>
-
             </div>
 
-            <!-- QUICK LINKS -->
-
-            <h2 style="margin-top:40px;">
-                Quick Access
-            </h2>
+            <h2 style="margin-top:40px;">Quick Access</h2>
 
             <div class="cards">
-
-                <!-- TASKS -->
-
-                <a href="tasks.html"
-                style="text-decoration:none; color:white;">
-
+                <a href="tasks.html" style="text-decoration:none; color:white; flex: 1;">
                     <div class="card">
-
-                        <i class="fa fa-list fa-2x"></i>
-
+                        <i class="fa fa-list fa-2x" style="color: #8b5cf6; margin-bottom: 10px;"></i>
                         <h3>Tasks</h3>
-
                         <p>View all tasks</p>
-
                     </div>
-
                 </a>
 
-                <!-- MEETINGS -->
-
-                <a href="meetings.html"
-                style="text-decoration:none; color:white;">
-
+                <a href="meetings.html" style="text-decoration:none; color:white; flex: 1;">
                     <div class="card">
-
-                        <i class="fa fa-calendar fa-2x"></i>
-
+                        <i class="fa fa-calendar fa-2x" style="color: #8b5cf6; margin-bottom: 10px;"></i>
                         <h3>Meetings</h3>
-
                         <p>Check meetings</p>
-
                     </div>
-
                 </a>
 
-                <!-- ANALYTICS -->
-
-                <a href="analytics.html"
-                style="text-decoration:none; color:white;">
-
+                <a href="analytics.html" style="text-decoration:none; color:white; flex: 1;">
                     <div class="card">
-
-                        <i class="fa fa-chart-bar fa-2x"></i>
-
+                        <i class="fa fa-chart-bar fa-2x" style="color: #8b5cf6; margin-bottom: 10px;"></i>
                         <h3>Analytics</h3>
-
                         <p>See productivity</p>
-
                     </div>
-
                 </a>
 
-                <!-- SETTINGS -->
-
-                <a href="settings.html"
-                style="text-decoration:none; color:white;">
-
+                <a href="settings.html" style="text-decoration:none; color:white; flex: 1;">
                     <div class="card">
-
-                        <i class="fa fa-gear fa-2x"></i>
-
+                        <i class="fa fa-gear fa-2x" style="color: #8b5cf6; margin-bottom: 10px;"></i>
                         <h3>Settings</h3>
-
                         <p>Manage settings</p>
-
                     </div>
-
                 </a>
-
             </div>
 
         </div>
-
     </div>
 
+    <script src="app.js"></script>
 </body>
 
 </html>
