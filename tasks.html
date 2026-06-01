@@ -34,96 +34,93 @@
         <div class="task-box">
 
             <h1>Tasks</h1>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+    <button id="voiceBtn" style="background-color: #8b5cf6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+        <i class="fa fa-microphone"></i> Start Voice Command
+    </button>
+</div>
             <input type="text" id="taskinput" placeholder="Task Name" style="width: 40%; padding: 10px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #f7f5f5; color: black;"> 
             
             <button id="addtaskbutton" style="background-color: #8b5cf6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">Add Task</button>
             
             <ul id="tasklist" style="list-style-type: none; padding: 0; margin-top: 20px;">
                 </ul>
+ <script>
+    const taskinput = document.getElementById('taskinput');
+    const addtaskbutton = document.getElementById('addtaskbutton');
+    const tasklist = document.getElementById('tasklist');
 
-    <script> 
-         // A helper function that executes whenever a change happens to the field
-         function inputChange(){
-            console.log("something is being entered into the field");
-          }
+    // Shared global array logic layer
+    let tasksArray = JSON.parse(localStorage.getItem('globalTasks')) || [];
 
-          /*  STEP 1: SELECTING THE DOM ELEMENTS
-            We grab the HTML tags by their ID attributes so JavaScript can control them.*/      
-          // Grabbing the text input box element
-        const taskinput = document.getElementById('taskinput');
-                
-         // Grabbing the clickable action button element
-         const addtaskbutton = document.getElementById('addtaskbutton');
-                
-         // Grabbing the target parent <ul> container where list items append
-         const tasklist = document.getElementById('tasklist');
+    function saveAndRenderTasks() {
+        // Read the absolute up-to-date state from storage before rendering updates
+        tasksArray = JSON.parse(localStorage.getItem('globalTasks')) || [];
+        
+        tasklist.innerHTML = "";
+        
+        tasksArray.forEach(function(task, index) {
+            const newLi = document.createElement('li');
+            newLi.style.backgroundColor = "#1e293b";
+            newLi.style.padding = "15px";
+            newLi.style.marginBottom = "10px";
+            newLi.style.borderRadius = "8px";
+            newLi.style.display = "flex";
+            newLi.style.justifyContent = "space-between";
+            newLi.style.alignItems = "center";
 
-        /*  STEP 2: ADDING AN EVENT LISTENER FOR CREATING TASKS
-           We tell the browser to wait and watch for a 'click' on the button. */
-        addtaskbutton.addEventListener('click', () => {
-                    
-            // Grab the text from the input bar and trim off unnecessary trailing whitespaces
-         const taskText = taskinput.value.trim();
-                    
-         // SAFETY LOGIC EXPLANATION: If the user leaves the text field completely blank...
-         if(taskText === '') {
-         // Alert them with an error popup warning
-          alert('Please Enter a Task!');
-          // Immediately stop executing the function so an empty task box isn't created
-          return;     }
-      /*  STEP 3: DYNAMIC ELEMENT GENERATION into the view */
-                    
-     // Create an empty list item element (<li>) in memory
-         const newLi = document.createElement('li');
-                    
-         newLi.style.display = 'flex';                  
-         newLi.style.justifyContent = 'space-between';   
-        newLi.style.padding = '10px';                  
-        newLi.style.backgroundColor = '#1e293b';       
-         newLi.style.marginBottom = '10px';            
-        newLi.style.borderRadius = '5px';              
+            const taskspan = document.createElement('span');
+            taskspan.textContent = task.name;
+            taskspan.style.cursor = "pointer";
+            
+            if (task.completed) {
+                taskspan.style.textDecoration = "line-through";
+                taskspan.style.color = "#64748b";
+            } else {
+                taskspan.style.color = "white";
+            }
 
-        // Create an inline text wrapper element (<span>) to safe-keep our text
-        const taskspan = document.createElement('span');
-                    
-        // Insert the user's typed task string directly into the text content of the span
-        taskspan.textContent = taskText;
-                        
-        // Create an action button element (<button>) used to remove the row later
-        const deletetaskbutton = document.createElement('button');
-                    
-         // Label the button explicitly so users know what it does
-         deletetaskbutton.textContent = 'Delete'; 
-                    
-        // Style the delete button component so it catches the eye as a critical action
-        deletetaskbutton.style.backgroundColor = 'red';   
-        deletetaskbutton.style.color = 'white';           
-        deletetaskbutton.style.border = 'none';           
-        deletetaskbutton.style.padding = '5px 10px';      
-        deletetaskbutton.style.borderRadius = '4px';      
-        deletetaskbutton.style.cursor = 'pointer';        
+            taskspan.addEventListener('click', function() {
+                tasksArray[index].completed = !tasksArray[index].completed;
+                localStorage.setItem('globalTasks', JSON.stringify(tasksArray));
+                saveAndRenderTasks();
+            });
 
-        /* STEP 4: NESTED EVENT LISTENER (HANDLING REMOVAL) Each specific task gets its own dedicated removal rule.   */
-         deletetaskbutton.addEventListener('click', () => {
-        // When THIS specific delete button is clicked, tell the main <ul> container 
-     // to target and permanently destroy its own row item wrapper ('newLi')
-        tasklist.removeChild(newLi);
-           });
+            const deletetaskbutton = document.createElement('button');
+            deletetaskbutton.textContent = 'Delete'; 
+            deletetaskbutton.style.backgroundColor = 'red';   
+            deletetaskbutton.style.color = 'white';           
+            deletetaskbutton.style.border = 'none';           
+            deletetaskbutton.style.padding = '5px 10px';      
+            deletetaskbutton.style.borderRadius = '4px';      
+            deletetaskbutton.style.cursor = 'pointer';        
 
- /*  STEP 5: ASSEMBLING AND SHOWING THE DATA Connecting all components to the physical page display structure. */
-                    
-        // Insert the text wrapper inside our row box element
-         newLi.appendChild(taskspan);
-         newLi.appendChild(deletetaskbutton);
-                    
-         tasklist.appendChild(newLi);
+            deletetaskbutton.addEventListener('click', function() {
+                tasksArray.splice(index, 1);
+                localStorage.setItem('globalTasks', JSON.stringify(tasksArray));
+                saveAndRenderTasks();
+            });
+
+            newLi.appendChild(taskspan);
+            newLi.appendChild(deletetaskbutton);
+            tasklist.appendChild(newLi);
+        });
+    }
+
+    addtaskbutton.addEventListener('click', function() {
+        if (taskinput.value.trim() === "") return;
+        // Reload storage state to safely append row without data collisions
+        tasksArray = JSON.parse(localStorage.getItem('globalTasks')) || [];
+        tasksArray.push({ name: taskinput.value.trim(), completed: false });
+        localStorage.setItem('globalTasks', JSON.stringify(tasksArray));
         taskinput.value = '';
-                }); 
-            </script> 
-        </div>
-    </div>
+        saveAndRenderTasks();
+    });
 
-</div>
-
+    saveAndRenderTasks();
+</script>
+<script src="settings.js"></script>
+<script src="voice.js"></script>
+     
 </body>
 </html>

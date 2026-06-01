@@ -51,7 +51,7 @@
             border-radius: 50%;
         }
 
-        /* When checked, add a purple background (matches your workspace theme) */
+        /* When checked, add a purple background */
         input:checked + .slider {
             background-color: #8b5cf6;
         }
@@ -61,27 +61,9 @@
             transform: translateX(24px);
         }
 
-        /* --- DARK MODE LIVE SCRIPT STYLES --- */
-        /* If dark mode is inactive (Light Mode defaults) */
-        body {
-            background-color: #f8fafc;
-            color: #0f172a;
-            transition: background 0.3s, color 0.3s;
-        }
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        /* When JavaScript appends the .dark-version class to the body */
-        body.dark-version {
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
-        body.dark-version .card {
-            background: #1e293b;
+        /* Global transition smooth effect matching your style requirements */
+        body, .card, .sidebar {
+            transition: background-color 0.3s, color 0.3s;
         }
     </style>
 </head>
@@ -90,7 +72,7 @@
 
 <div class="container">
 
-    <div class="sidebar">
+    <div class="sidebar" id="appSidebar">
         <h2>AI Workspace</h2>
         <a href="index.html"><i class="fa fa-home"></i> Dashboard</a>
         <a href="tasks.html"><i class="fa fa-list"></i> Tasks</a>
@@ -102,10 +84,10 @@
     <div class="main">
         <h1>Settings</h1>
 
-        <div class="card setting-row">
+        <div class="card setting-row" id="themeCard">
             <div>
-                <h3>Dark Mode</h3>
-                <p id="darkModeStatus">Disabled</p>
+                <h3>Mode Options</h3>
+                <p id="darkModeStatus">Light Mode</p>
             </div>
             <label class="switch">
                 <input type="checkbox" id="darkModeToggle">
@@ -115,7 +97,7 @@
 
         <br>
 
-        <div class="card setting-row">
+        <div class="card setting-row" id="notifyCard">
             <div>
                 <h3>Notifications</h3>
                 <p id="notifyStatus">OFF</p>
@@ -126,64 +108,15 @@
             </label>
         </div>
     </div>
-
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+    <h1>Settings</h1>
+    <button id="voiceBtn" style="background-color: #8b5cf6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+        <i class="fa fa-microphone"></i> Start Voice Command
+    </button>
+</div>
 </div>
 
-<script>
-    // 1. Grab DOM elements
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    const darkModeStatus = document.getElementById('darkModeStatus');
-    
-    const notifyToggle = document.getElementById('notifyToggle');
-    const notifyStatus = document.getElementById('notifyStatus');
-
-    /* 2. LOAD PREVED CONFIGURATIONS (localStorage)
-       When page starts up, check if user has visited before and saved settings */
-    const savedTheme = localStorage.getItem('theme');
-    const savedNotifications = localStorage.getItem('notifications');
-
-    // Apply saved theme
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-version');
-        darkModeToggle.checked = true;
-        darkModeStatus.textContent = "Enabled";
-    }
-
-    // Apply saved notifications
-    if (savedNotifications === 'enabled') {
-        notifyToggle.checked = true;
-        notifyStatus.textContent = "ON";
-    }
-
-    /* 3. INTERACTION LISTENERS */
-    // Handle Dark Mode Switch change
-    darkModeToggle.addEventListener('change', () => {
-        if (darkModeToggle.checked) {
-            document.body.classList.add('dark-version');
-            darkModeStatus.textContent = "Enabled";
-            localStorage.setItem('theme', 'dark'); // Save setting
-        } else {
-            document.body.classList.remove('dark-version');
-            darkModeStatus.textContent = "Disabled";
-            localStorage.setItem('theme', 'light'); // Save setting
-        }
-    });
-
-    // Handle Notifications Switch change
-    notifyToggle.addEventListener('change', () => {
-        if (notifyToggle.checked) {
-            notifyStatus.textContent = "ON";
-            localStorage.setItem('notifications', 'enabled'); // Save setting
-            
-            // Optional Concept: Request real browser permission
-            if ("Notification" in window) {
-                Notification.requestPermission();
-            }
-        } else {
-            notifyStatus.textContent = "OFF";
-            localStorage.setItem('notifications', 'disabled'); // Save setting
-        }
-    });
+<script src="settings.js">
 </script>
 
 </body>

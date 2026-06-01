@@ -47,8 +47,12 @@
     <!-- MAIN -->
 
     <div class="main">
-
-        <h1>Meetings</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+    <h1>Meetings</h1>
+    <button id="voiceBtn" style="background-color: #8b5cf6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+        <i class="fa fa-microphone"></i> Start Voice Command
+    </button>
+</div>
 
         <!-- INPUTS -->
 
@@ -113,135 +117,84 @@
 
 </div>
 
+
 <!-- JAVASCRIPT -->
-
 <script>
+    const meetinginput = document.getElementById('meetinginput');
+    const meetingtime = document.getElementById('meetingtime');
+    const addmeetingbutton = document.getElementById('addmeetingbutton');
+    const meetinglist = document.getElementById('meetinglist');
 
-    // SELECTING HTML ELEMENTS
+    let meetingsArray = JSON.parse(localStorage.getItem('globalMeetings')) || [];
 
-    const meetinginput = document.getElementById("meetinginput");
+    function saveAndRenderMeetings() {
+        // Read the absolute up-to-date state from storage before rendering updates
+        meetingsArray = JSON.parse(localStorage.getItem('globalMeetings')) || [];
+        
+        meetinglist.innerHTML = "";
 
-    const meetingtime = document.getElementById("meetingtime");
+        meetingsArray.forEach(function(meet, index) {
+            const newLi = document.createElement("li");
+            newLi.style.backgroundColor = "#1e293b";
+            newLi.style.padding = "15px";
+            newLi.style.marginBottom = "10px";
+            newLi.style.borderRadius = "8px";
+            newLi.style.display = "flex";
+            newLi.style.justifyContent = "space-between";
+            newLi.style.alignItems = "center";
 
-    const addmeetingbutton = document.getElementById("addmeetingbutton");
+            const meetingDetails = document.createElement("span");
+            meetingDetails.textContent = meet.name + " - " + meet.time;
+            meetingDetails.style.cursor = "pointer";
 
-    const meetinglist = document.getElementById("meetinglist");
+            if (meet.completed) {
+                meetingDetails.style.textDecoration = "line-through";
+                meetingDetails.style.color = "#64748b";
+            } else {
+                meetingDetails.style.color = "white";
+            }
 
+            meetingDetails.addEventListener('click', function() {
+                meetingsArray[index].completed = !meetingsArray[index].completed;
+                localStorage.setItem('globalMeetings', JSON.stringify(meetingsArray));
+                saveAndRenderMeetings();
+            });
 
+            const deletemeetingbutton = document.createElement("button");
+            deletemeetingbutton.textContent = "Delete";
+            deletemeetingbutton.style.backgroundColor = "red";
+            deletemeetingbutton.style.color = "white";
+            deletemeetingbutton.style.border = "none";
+            deletemeetingbutton.style.padding = "5px 10px";
+            deletemeetingbutton.style.borderRadius = "5px";
+            deletemeetingbutton.style.cursor = "pointer";
 
-    // BUTTON CLICK EVENT
+            deletemeetingbutton.addEventListener("click", function () {
+                meetingsArray.splice(index, 1);
+                localStorage.setItem('globalMeetings', JSON.stringify(meetingsArray));
+                saveAndRenderMeetings();
+            });
 
-    addmeetingbutton.addEventListener("click", function () {
-
-        // GET INPUT VALUES
-
-        const meetingText = meetinginput.value.trim();
-
-        const meetingTimeText = meetingtime.value.trim();
-
-
-
-        // VALIDATION
-
-        if (meetingText === "" || meetingTimeText === "") {
-
-            alert("Please enter meeting name and time");
-
-            return;
-        }
-
-
-
-        // CREATE LIST ITEM
-
-        const newLi = document.createElement("li");
-
-
-
-        // STYLING FOR LIST ITEM
-
-        newLi.style.display = "flex";
-
-        newLi.style.justifyContent = "space-between";
-
-        newLi.style.alignItems = "center";
-
-        newLi.style.backgroundColor = "#1e293b";
-
-        newLi.style.padding = "15px";
-
-        newLi.style.marginBottom = "10px";
-
-        newLi.style.borderRadius = "8px";
-
-
-
-        // CREATE TEXT
-
-        const meetingDetails = document.createElement("span");
-
-        meetingDetails.textContent = meetingText + " - " + meetingTimeText;
-
-
-
-        // CREATE DELETE BUTTON
-
-        const deletemeetingbutton = document.createElement("button");
-
-        deletemeetingbutton.textContent = "Delete";
-
-
-
-        // DELETE BUTTON STYLE
-
-        deletemeetingbutton.style.backgroundColor = "red";
-
-        deletemeetingbutton.style.color = "white";
-
-        deletemeetingbutton.style.border = "none";
-
-        deletemeetingbutton.style.padding = "5px 10px";
-
-        deletemeetingbutton.style.borderRadius = "5px";
-
-        deletemeetingbutton.style.cursor = "pointer";
-
-
-
-        // DELETE FUNCTION
-
-        deletemeetingbutton.addEventListener("click", function () {
-
-            meetinglist.removeChild(newLi);
-
+            newLi.appendChild(meetingDetails);
+            newLi.appendChild(deletemeetingbutton);
+            meetinglist.appendChild(newLi);
         });
+    }
 
-
-
-        // ADD ELEMENTS INTO LI
-
-        newLi.appendChild(meetingDetails);
-
-        newLi.appendChild(deletemeetingbutton);
-
-
-
-        // ADD LI INTO UL
-
-        meetinglist.appendChild(newLi);
-
-
-
-        // CLEAR INPUTS
-
+    addmeetingbutton.addEventListener('click', function() {
+        if (meetinginput.value.trim() === "" || meetingtime.value.trim() === "") return;
+        meetingsArray = JSON.parse(localStorage.getItem('globalMeetings')) || [];
+        meetingsArray.push({ name: meetinginput.value.trim(), time: meetingtime.value.trim(), completed: false });
+        localStorage.setItem('globalMeetings', JSON.stringify(meetingsArray));
         meetinginput.value = "";
-
         meetingtime.value = "";
-
+        saveAndRenderMeetings();
     });
 
+    saveAndRenderMeetings();
 </script>
+<script src="settings.js"></script>
+<script src="voice.js"></script>
 
 </body>
-
 </html>
