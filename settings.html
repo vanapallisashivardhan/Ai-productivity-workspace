@@ -5,7 +5,6 @@
     <title>Settings</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
     <style>
         /* --- TOGGLE SWITCH STYLING --- */
         .setting-row {
@@ -13,7 +12,6 @@
             justify-content: space-between;
             align-items: center;
         }
-
         /* The switch container */
         .switch {
             position: relative;
@@ -21,14 +19,12 @@
             width: 50px;
             height: 26px;
         }
-
         /* Hide default HTML checkbox */
         .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
-
         /* The slider graphic */
         .slider {
             position: absolute;
@@ -38,7 +34,6 @@
             transition: .3s;
             border-radius: 34px;
         }
-
         .slider:before {
             position: absolute;
             content: "";
@@ -50,28 +45,21 @@
             transition: .3s;
             border-radius: 50%;
         }
-
         /* When checked, add a purple background */
         input:checked + .slider {
-            background-color: #8b5cf6;
-        }
-
+            background-color: #8b5cf6;   }
         /* Move the white circle over when checked */
         input:checked + .slider:before {
             transform: translateX(24px);
         }
-
         /* Global transition smooth effect matching your style requirements */
         body, .card, .sidebar {
             transition: background-color 0.3s, color 0.3s;
         }
     </style>
 </head>
-
 <body>
-
 <div class="container">
-
     <div class="sidebar" id="appSidebar">
         <h2>AI Workspace</h2>
         <a href="index.html"><i class="fa fa-home"></i> Dashboard</a>
@@ -80,10 +68,8 @@
         <a href="analytics.html"><i class="fa fa-chart-bar"></i> Analytics</a>
         <a href="settings.html"><i class="fa fa-gear"></i> Settings</a>
     </div>
-
     <div class="main">
         <h1>Settings</h1>
-
         <div class="card setting-row" id="themeCard">
             <div>
                 <h3>Mode Options</h3>
@@ -94,9 +80,7 @@
                 <span class="slider"></span>
             </label>
         </div>
-
         <br>
-
         <div class="card setting-row" id="notifyCard">
             <div>
                 <h3>Notifications</h3>
@@ -109,7 +93,8 @@
         </div>
     </div>
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-    <h1>Settings</h1>
+    <h1>voice settings 
+    </h1>
     <button id="voiceBtn" style="background-color: #8b5cf6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
         <i class="fa fa-microphone"></i> Start Voice Command
     </button>

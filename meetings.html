@@ -1,51 +1,28 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
     <title>Meetings</title>
-
     <link rel="stylesheet" href="style.css">
-
     <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
 </head>
-
 <body>
-
 <div class="container">
-
     <!-- SIDEBAR -->
-
     <div class="sidebar">
-
         <h2>AI Workspace</h2>
-
         <a href="index.html">
-            <i class="fa fa-home"></i> Dashboard
-        </a>
-
+            <i class="fa fa-home"></i> Dashboard</a>
         <a href="tasks.html">
-            <i class="fa fa-list"></i> Tasks
-        </a>
-
+            <i class="fa fa-list"></i> Tasks</a>
         <a href="meetings.html">
-            <i class="fa fa-calendar"></i> Meetings
-        </a>
-
+            <i class="fa fa-calendar"></i> Meetings</a>
         <a href="analytics.html">
-            <i class="fa fa-chart-bar"></i> Analytics
-        </a>
-
+            <i class="fa fa-chart-bar"></i> Analytics</a>
         <a href="settings.html">
-            <i class="fa fa-gear"></i> Settings
-        </a>
-
+            <i class="fa fa-gear"></i> Settings</a>
     </div>
-
     <!-- MAIN -->
-
     <div class="main">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
     <h1>Meetings</h1>
@@ -53,71 +30,20 @@
         <i class="fa fa-microphone"></i> Start Voice Command
     </button>
 </div>
-
         <!-- INPUTS -->
-
         <input 
-            type="text"
-            id="meetinginput"
-            placeholder="Enter Meeting Name"
-            style="
-                width:40%;
-                padding:10px;
-                border-radius:8px;
-                border:none;
-                margin-bottom:15px;
-            "
-        >
-
-        <input 
-            type="text"
-            id="meetingtime"
-            placeholder="Enter Meeting Time"
-            style="
-                width:40%;
-                padding:10px;
-                border-radius:8px;
-                border:none;
-                margin-left:10px;
-                margin-bottom:15px;
-            "
-        >
-
+            type="text" id="meetinginput"placeholder="Enter Meeting Name" style=" width:40%; padding:10px; border-radius:8px; border:none; margin-bottom:15px;  ">
+        <input  type="text" id="meetingtime" placeholder="Enter Meeting Time" style=" width:40%; padding:10px; border-radius:8px; border:none; margin-left:10px; margin-bottom:15px;   " >
         <!-- BUTTON -->
-
-        <button 
-            id="addmeetingbutton"
-            style="
-                background-color:#8b5cf6;
-                color:white;
-                border:none;
-                padding:10px 20px;
-                border-radius:8px;
-                cursor:pointer;
-                font-weight:bold;
-            "
-        >
-            Add Meeting
+        <button  id="addmeetingbutton" style=" background-color:#8b5cf6; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;" >
+         //   Add Meeting
         </button>
-
         <!-- LIST -->
-
         <ul 
             id="meetinglist"
-            style="
-                list-style:none;
-                padding:0;
-                margin-top:30px;
-            "
-        >
-
-        </ul>
-
+            style=" list-style:none;  padding:0;  margin-top:30px;"> </ul>
     </div>
-
 </div>
-
-
 <!-- JAVASCRIPT -->
 <script>
     const meetinginput = document.getElementById('meetinginput');
