@@ -39,13 +39,32 @@
     const addtaskbutton = document.getElementById('addtaskbutton');
     const tasklist = document.getElementById('tasklist');
 
-    // Shared global array logic layer
     let tasksArray = JSON.parse(localStorage.getItem('globalTasks')) || [];
 
-    function saveAndRenderTasks() {
-        // Read the absolute up-to-date state from storage before rendering updates
-        tasksArray = JSON.parse(localStorage.getItem('globalTasks')) || [];
+    // Auxiliary calculations loop function
+    function internalMetricSync() {
+        const currentTasks = JSON.parse(localStorage.getItem('globalTasks')) || [];
+        const currentMeetings = JSON.parse(localStorage.getItem('globalMeetings')) || [];
         
+        const incompleteT = currentTasks.filter(t => !t.completed).length;
+        const incompleteM = currentMeetings.filter(m => !m.completed).length;
+        
+        const totalItems = currentTasks.length + currentMeetings.length;
+        const completedItems = currentTasks.filter(t => t.completed).length + currentMeetings.filter(m => m.completed).length;
+        const rate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+        
+        const todayStr = new Date().toISOString().split('T')[0];
+        const historyDb = JSON.parse(localStorage.getItem('analyticsHistory')) || {};
+        historyDb[todayStr] = {
+            incompleteTasks: incompleteT,
+            incompleteMeetings: incompleteM,
+            rate: rate
+        };
+        localStorage.setItem('analyticsHistory', JSON.stringify(historyDb));
+    }
+
+    function saveAndRenderTasks() {
+        tasksArray = JSON.parse(localStorage.getItem('globalTasks')) || [];
         tasklist.innerHTML = "";
         
         tasksArray.forEach(function(task, index) {
@@ -72,6 +91,7 @@
             taskspan.addEventListener('click', function() {
                 tasksArray[index].completed = !tasksArray[index].completed;
                 localStorage.setItem('globalTasks', JSON.stringify(tasksArray));
+                internalMetricSync();
                 saveAndRenderTasks();
             });
 
@@ -87,6 +107,7 @@
             deletetaskbutton.addEventListener('click', function() {
                 tasksArray.splice(index, 1);
                 localStorage.setItem('globalTasks', JSON.stringify(tasksArray));
+                internalMetricSync();
                 saveAndRenderTasks();
             });
 
@@ -98,11 +119,11 @@
 
     addtaskbutton.addEventListener('click', function() {
         if (taskinput.value.trim() === "") return;
-        // Reload storage state to safely append row without data collisions
         tasksArray = JSON.parse(localStorage.getItem('globalTasks')) || [];
         tasksArray.push({ name: taskinput.value.trim(), completed: false });
         localStorage.setItem('globalTasks', JSON.stringify(tasksArray));
         taskinput.value = '';
+        internalMetricSync();
         saveAndRenderTasks();
     });
 
