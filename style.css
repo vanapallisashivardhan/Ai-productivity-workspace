@@ -1,9 +1,10 @@
-.body {
+/* Base Layout and Theme Configurations */
+body {
     margin: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background-color: #0f172a;
-    color: #f8fafc;
-    transition: background-color 0.3s, color 0.3s; /* Smooth transitions for theme switching */
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: #0b0f19; /* Sleek, deeply premium midnight dark background */
+    color: #f1f5f9; /* Soft bright white for comfortable legibility */
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .container {
@@ -11,152 +12,179 @@
     min-height: 100vh;
 }
 
+/* Sidebar Styling Optimization */
 .sidebar {
-    width: 240px;
-    background-color: #061942;
-    padding: 25px 20px;
+    width: 260px;
+    background-color: #111827; /* Rich dark charcoal paneling */
+    padding: 30px 20px;
     box-sizing: border-box;
-    transition: background-color 0.3s;
+    border-right: 1px solid #1f2937;
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar h2 {
-    color: #9f88d4;
+    color: #a78bfa; /* Vibrant violet-lavender workspace brand highlight */
     margin-top: 0;
-    margin-bottom: 30px;
-    font-size: 22px;
+    margin-bottom: 35px;
+    font-size: 20px;
+    font-weight: 700;
     letter-spacing: 0.5px;
+    padding-left: 10px;
 }
 
 .sidebar a {
     display: flex;
     align-items: center;
-    gap: 12px;
-    color: #cbd5e1;
+    gap: 14px;
+    color: #9ca3af; /* Muted slate gray for secondary navigation items */
     text-decoration: none;
-    margin-bottom: 15px;
-    padding: 12px 15px;
-    border-radius: 8px;
+    margin-bottom: 8px;
+    padding: 12px 16px;
+    border-radius: 10px;
     font-weight: 500;
-    transition: all 0.2s ease;
+    font-size: 15px;
+    transition: all 0.2s ease-in-out;
 }
 
-.sidebar a:hover, 
+.sidebar a:hover {
+    background-color: #1f2937;
+    color: #f3f4f6;
+}
+
 .sidebar a.active {
-    background-color: #1e293b;
+    background: linear-gradient(135deg, #6d28d9, #4c1d95); /* Deep rich violet anchor state */
     color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(109, 40, 217, 0.25);
 }
 
+.sidebar a i {
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Main Dashboard Panel Workspaces */
 .main {
     flex: 1;
     padding: 40px;
     box-sizing: border-box;
+    overflow-y: auto;
 }
 
-.main h1 {
+.main h1, .main h2 {
+    font-weight: 700;
+    color: #ffffff;
     margin-top: 0;
-    font-size: 28px;
-    margin-bottom: 25px;
 }
 
+/* Beautiful Hero Dashboard Sections */
 .hero {
-    background-color: #3876a0;
-    padding: 30px;
-    border-radius: 12px;
-    margin-bottom: 35px;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    background: linear-gradient(145deg, #1e1b4b, #111827); /* Indigo/Dark mix */
+    padding: 32px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    border: 1px solid #312e81;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
 .hero h2 {
-    margin-top: 0;
+    color: #e9d5ff;
     margin-bottom: 8px;
+    font-size: 24px;
 }
 
 .hero p {
     margin: 0;
-    color: #cbd5e1;
+    color: #c084fc;
+    font-size: 15px;
+    line-height: 1.5;
 }
 
-.cards {
+/* Card Grid Matrix Components */
+.cards-container {
     display: flex;
     gap: 20px;
-    margin-top: 20px;
+    margin-top: 25px;
     flex-wrap: wrap;
 }
 
 .card {
-    background-color: #3876a0;
+    background-color: #1f2937; /* Elevated card surface slate tint */
     padding: 24px;
-    width: 220px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    transition: transform 0.2s, background-color 0.3s;
+    border-radius: 14px;
+    border: 1px solid #374151;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.14);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, border-color 0.2s;
 }
 
 .card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    background-color: #263143;
+    border-color: #4b5563;
 }
 
 .card h3 {
-    margin: 0 0 8px 0;
-    font-size: 24px;
+    margin: 12px 0 6px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #f8fafc;
 }
 
 .card p {
     margin: 0;
     color: #94a3b8;
     font-size: 14px;
+    line-height: 1.4;
 }
 
+/* Special Layout Classes for Lists */
 .task-box, .meeting-card {
-    margin-top: 10px;
+    margin-top: 12px;
+    padding: 16px 20px !important;
 }
 
-/* Inputs styling */
+/* Inputs and Interactive UI Control Fields */
 input[type="text"] {
-    padding: 12px 16px;
-    border-radius: 8px;
-    border: 1px solid #334155;
-    background-color: #ffffff;
-    color: #0f172a;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid #374151;
+    background-color: #111827; /* Input field nested dark theme depth */
+    color: #f3f4f6;
     font-size: 15px;
     outline: none;
-    transition: border-color 0.2s;
+    box-sizing: border-box;
+    transition: all 0.2s ease-in-out;
+}
+
+input[type="text"]::placeholder {
+    color: #6b7280;
 }
 
 input[type="text"]:focus {
     border-color: #8b5cf6;
+    background-color: #1f2937;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
 }
 
-/* Global button action items styling */
+/* Primary Button Implementations */
 button {
     font-family: inherit;
-    transition: opacity 0.2s, background-color 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 button:hover {
-    opacity: 0.9;
+    opacity: 0.95;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Dynamic rows generated by voice or text scripts */
-ul {
-    list-style-type: none;
-    padding: 0;
-    margin-top: 25px;
+button:active {
+    transform: translateY(1px);
 }
 
-.progress-bar {
-    width: 100%;
-    max-width: 500px;
-    height: 16px;
-    background-color: #334155;
-    border-radius: 9999px;
-    margin-top: 15px;
-    overflow: hidden;
-}
-
-.progress {
-    width: 85%; /* Your layout productivity rate status */
-    height: 100%;
-    background-color: #8b5cf6;
-    border-radius: 9999px;
+/* Checkbox customizations */
+input[type="checkbox"] {
+    accent-color: #10b981; /* Premium Emerald Accent for completed item tasks */
 }

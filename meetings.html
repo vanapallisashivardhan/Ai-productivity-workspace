@@ -3,107 +3,142 @@
 <head>
     <title>Meetings</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 <div class="container">
-    <!-- SIDEBAR -->
     <div class="sidebar">
         <h2>AI Workspace</h2>
-        <a href="index.html">
-            <i class="fa fa-home"></i> Dashboard</a>
-        <a href="tasks.html">
-            <i class="fa fa-list"></i> Tasks</a>
-        <a href="meetings.html">
-            <i class="fa fa-calendar"></i> Meetings</a>
-        <a href="analytics.html">
-            <i class="fa fa-chart-bar"></i> Analytics</a>
-        <a href="settings.html">
-            <i class="fa fa-gear"></i> Settings</a>
+        <a href="index.html"><i class="fa fa-home"></i> Dashboard</a>
+        <a href="tasks.html"><i class="fa fa-list"></i> Tasks</a>
+        <a href="meetings.html" class="active"><i class="fa fa-calendar"></i> Meetings</a>
+        <a href="analysis.html"><i class="fa fa-chart-bar"></i> Analysis</a>
     </div>
-    <!-- MAIN -->
     <div class="main">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-    <h1>Meetings</h1>
-    <button id="voiceBtn" style="background-color: #8b5cf6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-        <i class="fa fa-microphone"></i> Start Voice Command
-    </button>
-</div>
-        <!-- INPUTS -->
-        <input 
-            type="text" id="meetinginput"placeholder="Enter Meeting Name" style=" width:40%; padding:10px; border-radius:8px; border:none; margin-bottom:15px;  ">
-        <input  type="text" id="meetingtime" placeholder="Enter Meeting Time" style=" width:40%; padding:10px; border-radius:8px; border:none; margin-left:10px; margin-bottom:15px;   " >
-        <!-- BUTTON -->
-        <button  id="addmeetingbutton" style=" background-color:#8b5cf6; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;" >
-         //   Add Meeting
-        </button>
-        <!-- LIST -->
-        <ul 
-            id="meetinglist"
-            style=" list-style:none;  padding:0;  margin-top:30px;"> </ul>
+            <h1>Meetings Agenda</h1>
+            <button id="voiceBtn" style="background-color: #8b5cf6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <i class="fa fa-microphone"></i> Start Voice Command
+            </button>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+            <input type="text" id="meetingInput" placeholder="Meeting purpose description..." style="flex: 2;">
+            <input type="text" id="meetingTime" placeholder="Target time (e.g., 4:00 PM)..." style="flex: 1;">
+            <button id="addMeetingBtn" style="background-color: #8b5cf6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer;">Add Meeting</button>
+        </div>
+
+        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px;">
+                <h3 style="color: #a78bfa; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 8px;">Upcoming Agenda</h3>
+                <ul id="meetingList" style="list-style: none; padding: 0;"></ul>
+            </div>
+            <div style="flex: 1; min-width: 300px;">
+                <h3 style="color: #10b981; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 8px;">Concluded Sessions</h3>
+                <ul id="completedMeetingList" style="list-style: none; padding: 0; opacity: 0.7;"></ul>
+            </div>
+        </div>
     </div>
 </div>
-<!-- JAVASCRIPT -->
+
 <script>
-    const meetinginput = document.getElementById('meetinginput');
-    const meetingtime = document.getElementById('meetingtime');
-    const addmeetingbutton = document.getElementById('addmeetingbutton');
-    const meetinglist = document.getElementById('meetinglist');
+    const meetinginput = document.getElementById('meetingInput');
+    const meetingtime = document.getElementById('meetingTime');
+    const addmeetingbutton = document.getElementById('addMeetingBtn');
+    const meetinglist = document.getElementById('meetingList');
+    const completedMeetingList = document.getElementById('completedMeetingList');
 
     let meetingsArray = JSON.parse(localStorage.getItem('globalMeetings')) || [];
 
-    function saveAndRenderMeetings() {
-        // Read the absolute up-to-date state from storage before rendering updates
-        meetingsArray = JSON.parse(localStorage.getItem('globalMeetings')) || [];
+    function internalMetricSync() {
+        const tasks = JSON.parse(localStorage.getItem('globalTasks')) || [];
+        const meetings = JSON.parse(localStorage.getItem('globalMeetings')) || [];
         
+        const incompleteTasks = tasks.filter(t => !t.completed).length;
+        const incompleteMeetings = meetings.filter(m => !m.completed).length;
+        
+        const totalItems = tasks.length + meetings.length;
+        const completedItems = tasks.filter(t => t.completed).length + meetings.filter(m => m.completed).length;
+        const rate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+        
+        const todayStr = new Date().toISOString().split('T')[0];
+        const historyDb = JSON.parse(localStorage.getItem('analysisHistory')) || {};
+        historyDb[todayStr] = {
+            incompleteTasks: incompleteTasks,
+            incompleteMeetings: incompleteMeetings,
+            rate: rate
+        };
+        localStorage.setItem('analysisHistory', JSON.stringify(historyDb));
+    }
+
+    function saveAndRenderMeetings() {
         meetinglist.innerHTML = "";
+        completedMeetingList.innerHTML = "";
+        meetingsArray = JSON.parse(localStorage.getItem('globalMeetings')) || [];
 
-        meetingsArray.forEach(function(meet, index) {
+        meetingsArray.forEach((meet, index) => {
             const newLi = document.createElement("li");
-            newLi.style.backgroundColor = "#1e293b";
-            newLi.style.padding = "15px";
-            newLi.style.marginBottom = "10px";
-            newLi.style.borderRadius = "8px";
-            newLi.style.display = "flex";
-            newLi.style.justifyContent = "space-between";
-            newLi.style.alignItems = "center";
+            newLi.className = "card meeting-card";
+            newLi.style.cssText = "display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; margin-bottom: 12px; background-color: #1e293b;";
 
-            const meetingDetails = document.createElement("span");
-            meetingDetails.textContent = meet.name + " - " + meet.time;
-            meetingDetails.style.cursor = "pointer";
+            const leftWrapper = document.createElement("div");
+            leftWrapper.style.cssText = "display: flex; align-items: center; gap: 15px;";
 
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = meet.completed;
+            checkbox.style.cssText = "width: 18px; height: 18px; cursor: pointer;";
+
+            checkbox.addEventListener("change", function () {
+                meetingsArray[index].completed = checkbox.checked;
+                localStorage.setItem('globalMeetings', JSON.stringify(meetingsArray));
+                internalMetricSync();
+                saveAndRenderMeetings();
+                if (typeof renderLiveAnalysis === 'function') renderLiveAnalysis();
+            });
+
+            const meetingDetails = document.createElement("div");
+            
+            const titleSpan = document.createElement("span");
+            titleSpan.textContent = meet.name;
+            titleSpan.style.cssText = "font-size: 16px; font-weight: bold; display: block;";
             if (meet.completed) {
-                meetingDetails.style.textDecoration = "line-through";
-                meetingDetails.style.color = "#64748b";
-            } else {
-                meetingDetails.style.color = "white";
+                titleSpan.style.textDecoration = "line-through";
+                titleSpan.style.color = "#64748b";
             }
 
-            meetingDetails.addEventListener('click', function() {
-                meetingsArray[index].completed = !meetingsArray[index].completed;
-                localStorage.setItem('globalMeetings', JSON.stringify(meetingsArray));
-                saveAndRenderMeetings();
-            });
+            const timeSpan = document.createElement("small");
+            timeSpan.textContent = "🕒 Scheduled at: " + meet.time;
+            timeSpan.style.cssText = "color: #94a3b8; font-size: 13px;";
+            if (meet.completed) {
+                timeSpan.style.color = "#64748b";
+            }
+
+            meetingDetails.appendChild(titleSpan);
+            meetingDetails.appendChild(timeSpan);
+
+            leftWrapper.appendChild(checkbox);
+            leftWrapper.appendChild(meetingDetails);
 
             const deletemeetingbutton = document.createElement("button");
             deletemeetingbutton.textContent = "Delete";
-            deletemeetingbutton.style.backgroundColor = "red";
-            deletemeetingbutton.style.color = "white";
-            deletemeetingbutton.style.border = "none";
-            deletemeetingbutton.style.padding = "5px 10px";
-            deletemeetingbutton.style.borderRadius = "5px";
-            deletemeetingbutton.style.cursor = "pointer";
+            deletemeetingbutton.style.cssText = "background-color: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;";
 
             deletemeetingbutton.addEventListener("click", function () {
                 meetingsArray.splice(index, 1);
                 localStorage.setItem('globalMeetings', JSON.stringify(meetingsArray));
+                internalMetricSync();
                 saveAndRenderMeetings();
             });
 
-            newLi.appendChild(meetingDetails);
+            newLi.appendChild(leftWrapper);
             newLi.appendChild(deletemeetingbutton);
-            meetinglist.appendChild(newLi);
+
+            if (!meet.completed) {
+                meetinglist.appendChild(newLi);
+            } else {
+                completedMeetingList.appendChild(newLi);
+            }
         });
     }
 
@@ -114,13 +149,12 @@
         localStorage.setItem('globalMeetings', JSON.stringify(meetingsArray));
         meetinginput.value = "";
         meetingtime.value = "";
+        internalMetricSync();
         saveAndRenderMeetings();
     });
 
     saveAndRenderMeetings();
 </script>
-<script src="settings.js"></script>
 <script src="voice.js"></script>
-
 </body>
 </html>

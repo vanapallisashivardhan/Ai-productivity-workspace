@@ -37,7 +37,6 @@ if (voiceBtn) {
     });
 }
 
-// Helper function to sync total calculations for dashboard/analytics calculation views
 function syncGlobalWorkspaceMetrics() {
     const tasks = JSON.parse(localStorage.getItem('globalTasks')) || [];
     const meetings = JSON.parse(localStorage.getItem('globalMeetings')) || [];
@@ -50,26 +49,29 @@ function syncGlobalWorkspaceMetrics() {
     const rate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
     
     const todayStr = new Date().toISOString().split('T')[0];
-    const historyDb = JSON.parse(localStorage.getItem('analyticsHistory')) || {};
+    const historyDb = JSON.parse(localStorage.getItem('analysisHistory')) || {};
     historyDb[todayStr] = {
         incompleteTasks: incompleteTasks,
         incompleteMeetings: incompleteMeetings,
         rate: rate
     };
-    localStorage.setItem('analyticsHistory', JSON.stringify(historyDb));
+    localStorage.setItem('analysisHistory', JSON.stringify(historyDb));
 }
 
-// MAIN COMMAND ROUTING AND PARSING CORE
 function executeVoiceCommand(commandText) {
-    const cleanCommand = commandText.trim().toLowerCase();
-    console.log("AI Engine Processing Item: " + cleanCommand);
+    const cleanCommand = commandText.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+    console.log("AI Engine Processing Input Token: " + cleanCommand);
 
-    // 1. CROSS-PAGE REDIRECT CAPTURES
-    if (cleanCommand.includes("go to tasks")) {
+    // 1. ROUTING ENGINE
+    if (cleanCommand.includes("go to task") || cleanCommand.includes("go to tasks")) {
         if (cleanCommand.includes("add task")) {
             localStorage.setItem('pendingVoiceTask', cleanCommand.split("add task")[1].trim());
-        } else if (cleanCommand.includes("delete task")) {
-            localStorage.setItem('pendingVoiceDeleteTask', cleanCommand.split("delete task")[1].trim());
+        } else if (cleanCommand.includes("complete task")) {
+            localStorage.setItem('pendingCompleteTask', cleanCommand.split("complete task")[1].trim());
+        } else if (cleanCommand.includes("tick task")) {
+            localStorage.setItem('pendingCompleteTask', cleanCommand.split("tick task")[1].trim());
+        } else if (cleanCommand.includes("mark task")) {
+            localStorage.setItem('pendingCompleteTask', cleanCommand.split("mark task")[1].trim());
         }
         window.location.href = "tasks.html";
         return;
@@ -77,18 +79,18 @@ function executeVoiceCommand(commandText) {
     else if (cleanCommand.includes("go to meetings")) {
         if (cleanCommand.includes("add meeting")) {
             localStorage.setItem('pendingVoiceMeeting', cleanCommand.split("add meeting")[1].trim());
-        } else if (cleanCommand.includes("delete meeting")) {
-            localStorage.setItem('pendingVoiceDeleteMeeting', cleanCommand.split("delete meeting")[1].trim());
+        } else if (cleanCommand.includes("complete meeting")) {
+            localStorage.setItem('pendingCompleteMeeting', cleanCommand.split("complete meeting")[1].trim());
+        } else if (cleanCommand.includes("tick meeting")) {
+            localStorage.setItem('pendingCompleteMeeting', cleanCommand.split("tick meeting")[1].trim());
+        } else if (cleanCommand.includes("mark meeting")) {
+            localStorage.setItem('pendingCompleteMeeting', cleanCommand.split("mark meeting")[1].trim());
         }
         window.location.href = "meetings.html";
         return;
     } 
-    else if (cleanCommand.includes("go to analytics")) {
-        window.location.href = "analytics.html";
-        return;
-    } 
-    else if (cleanCommand.includes("go to settings")) {
-        window.location.href = "settings.html";
+    else if (cleanCommand.includes("go to analysis")) {
+        window.location.href = "analysis.html";
         return;
     } 
     else if (cleanCommand.includes("go to dashboard") || cleanCommand.includes("go home")) {
@@ -96,143 +98,147 @@ function executeVoiceCommand(commandText) {
         return;
     }
 
-    // 2. THEME UTILITIES
-    if (cleanCommand.includes("dark mode")) {
-        localStorage.setItem('theme', 'dark');
-        document.body.style.backgroundColor = "#0f172a";
-        document.body.style.color = "#f8fafc";
-        if(typeof darkTheme === "function") darkTheme();
-    } 
-    else if (cleanCommand.includes("light mode")) {
-        localStorage.setItem('theme', 'light');
-        document.body.style.backgroundColor = "#f8fafc";
-        document.body.style.color = "#0f172a";
-        if(typeof lightTheme === "function") lightTheme();
-    }
+    // 2. DATA MUTATION OPERATIONS
+    if (cleanCommand.includes("complete task") || cleanCommand.includes("tick task") || cleanCommand.includes("mark task")) {
+        let keyword = "complete task";
+        if (cleanCommand.includes("tick task")) keyword = "tick task";
+        if (cleanCommand.includes("mark task")) keyword = "mark task";
 
-    // 3. TASK UTILITIES
-    if (cleanCommand.includes("add task")) {
-        const taskBox = document.getElementById('taskinput');
-        const addBtn = document.getElementById('addtaskbutton');
-        let taskText = cleanCommand.split("add task")[1].trim();
-        
-        if (taskBox && addBtn) {
-            taskBox.value = taskText;
-            addBtn.click();
-        } else {
+        const splitParts = cleanCommand.split(keyword);
+        if (splitParts.length > 1 && splitParts[1].trim() !== "") {
+            let targetName = splitParts[1].trim();
+            targetName = targetName.replace("as completed", "").replace("as complete", "").trim();
+
+            let currentTasks = JSON.parse(localStorage.getItem('globalTasks')) || [];
+            
+            currentTasks.forEach(task => {
+                let normalizedTask = task.name.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
+                if (normalizedTask.includes(targetName) || targetName.includes(normalizedTask)) {
+                    task.completed = true;
+                }
+            });
+            
+            localStorage.setItem('globalTasks', JSON.stringify(currentTasks));
+            syncGlobalWorkspaceMetrics();
+            if (typeof saveAndRenderTasks === 'function') saveAndRenderTasks();
+            if (typeof renderLiveAnalysis === 'function') renderLiveAnalysis();
+        }
+    }
+    else if (cleanCommand.includes("complete meeting") || cleanCommand.includes("tick meeting") || cleanCommand.includes("mark meeting")) {
+        let keyword = "complete meeting";
+        if (cleanCommand.includes("tick meeting")) keyword = "tick meeting";
+        if (cleanCommand.includes("mark meeting")) keyword = "mark meeting";
+
+        const splitParts = cleanCommand.split(keyword);
+        if (splitParts.length > 1 && splitParts[1].trim() !== "") {
+            let targetMeetingName = splitParts[1].trim();
+            targetMeetingName = targetMeetingName.replace("as completed", "").replace("as complete", "").trim();
+
+            let currentMeetings = JSON.parse(localStorage.getItem('globalMeetings')) || [];
+            
+            currentMeetings.forEach(meet => {
+                let normalizedMeeting = meet.name.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
+                if (normalizedMeeting.includes(targetMeetingName) || targetMeetingName.includes(normalizedMeeting)) {
+                    meet.completed = true;
+                }
+            });
+            
+            localStorage.setItem('globalMeetings', JSON.stringify(currentMeetings));
+            syncGlobalWorkspaceMetrics();
+            if (typeof saveAndRenderMeetings === 'function') saveAndRenderMeetings();
+            if (typeof renderLiveAnalysis === 'function') renderLiveAnalysis();
+        }
+    }
+    else if (cleanCommand.includes("add task")) {
+        const splitParts = cleanCommand.split("add task");
+        if (splitParts.length > 1 && splitParts[1].trim() !== "") {
+            let taskText = splitParts[1].trim();
             let currentTasks = JSON.parse(localStorage.getItem('globalTasks')) || [];
             currentTasks.push({ name: taskText, completed: false });
             localStorage.setItem('globalTasks', JSON.stringify(currentTasks));
             syncGlobalWorkspaceMetrics();
+            if (typeof saveAndRenderTasks === 'function') saveAndRenderTasks();
         }
     }
     else if (cleanCommand.includes("delete task")) {
-        const targetName = cleanCommand.split("delete task")[1].trim();
-        let currentTasks = JSON.parse(localStorage.getItem('globalTasks')) || [];
-        
-        const updatedTasks = currentTasks.filter(function(task) {
-            return !task.name.toLowerCase().includes(targetName) && !targetName.includes(task.name.toLowerCase());
-        });
-
-        localStorage.setItem('globalTasks', JSON.stringify(updatedTasks));
-        syncGlobalWorkspaceMetrics();
-        if (typeof saveAndRenderTasks === 'function') {
-            saveAndRenderTasks();
+        const splitParts = cleanCommand.split("delete task");
+        if (splitParts.length > 1 && splitParts[1].trim() !== "") {
+            const targetName = splitParts[1].trim();
+            let currentTasks = JSON.parse(localStorage.getItem('globalTasks')) || [];
+            const updatedTasks = currentTasks.filter(task => {
+                let normalizedTask = task.name.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
+                return !normalizedTask.includes(targetName) && !targetName.includes(normalizedTask);
+            });
+            localStorage.setItem('globalTasks', JSON.stringify(updatedTasks));
+            syncGlobalWorkspaceMetrics();
+            if (typeof saveAndRenderTasks === 'function') saveAndRenderTasks();
         }
     }
-    
-    // 4. MEETING UTILITIES
     else if (cleanCommand.includes("add meeting")) {
-        let meetingPayload = cleanCommand.split("add meeting")[1].trim();
-        let meetingName = meetingPayload;
-        let meetingTime = "";
+        const splitParts = cleanCommand.split("add meeting");
+        if (splitParts.length > 1 && splitParts[1].trim() !== "") {
+            let meetingPayload = splitParts[1].trim();
+            let meetingName = meetingPayload;
+            let meetingTime = "";
 
-        if (meetingPayload.includes(" at ")) {
-            let parts = meetingPayload.split(" at ");
-            meetingName = parts[0].trim();
-            meetingTime = parts[1].trim();
-        }
-
-        if (!meetingTime) {
-            meetingTime = prompt("🕒 What time is the meeting '" + meetingName + "' scheduled for?");
-            if (!meetingTime || meetingTime.trim() === "") {
-                meetingTime = "Not Specified";
+            if (meetingPayload.includes(" at ")) {
+                let parts = meetingPayload.split(" at ");
+                meetingName = parts[0].trim();
+                meetingTime = parts[1].trim();
             }
-        }
 
-        const meetBox = document.getElementById('meetinginput');
-        const meetTimeBox = document.getElementById('meetingtime');
-        const addMeetBtn = document.getElementById('addmeetingbutton');
+            if (!meetingTime) {
+                meetingTime = prompt("🕒 What time is the meeting '" + meetingName + "' scheduled for?");
+                if (!meetingTime || meetingTime.trim() === "") meetingTime = "Not Specified";
+            }
 
-        if (meetBox && meetTimeBox && addMeetBtn) {
-            meetBox.value = meetingName;
-            meetTimeBox.value = meetingTime;
-            addMeetBtn.click();
-        } else {
             let currentMeetings = JSON.parse(localStorage.getItem('globalMeetings')) || [];
             currentMeetings.push({ name: meetingName, time: meetingTime, completed: false });
             localStorage.setItem('globalMeetings', JSON.stringify(currentMeetings));
             syncGlobalWorkspaceMetrics();
+            if (typeof saveAndRenderMeetings === 'function') saveAndRenderMeetings();
         }
     }
     else if (cleanCommand.includes("delete meeting")) {
-        const targetMeetingName = cleanCommand.split("delete meeting")[1].trim();
-        let currentMeetings = JSON.parse(localStorage.getItem('globalMeetings')) || [];
-
-        const updatedMeetings = currentMeetings.filter(function(meet) {
-            return !meet.name.toLowerCase().includes(targetMeetingName) && !targetMeetingName.includes(meet.name.toLowerCase());
-        });
-
-        localStorage.setItem('globalMeetings', JSON.stringify(updatedMeetings));
-        syncGlobalWorkspaceMetrics();
-        if (typeof saveAndRenderMeetings === 'function') {
-            saveAndRenderMeetings();
+        const splitParts = cleanCommand.split("delete meeting");
+        if (splitParts.length > 1 && splitParts[1].trim() !== "") {
+            const targetMeetingName = splitParts[1].trim();
+            let currentMeetings = JSON.parse(localStorage.getItem('globalMeetings')) || [];
+            const updatedMeetings = currentMeetings.filter(meet => {
+                let normalizedMeeting = meet.name.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
+                return !normalizedMeeting.includes(targetMeetingName) && !targetMeetingName.includes(normalizedMeeting);
+            });
+            localStorage.setItem('globalMeetings', JSON.stringify(updatedMeetings));
+            syncGlobalWorkspaceMetrics();
+            if (typeof saveAndRenderMeetings === 'function') saveAndRenderMeetings();
         }
     }
 }
 
 recognition.onresult = function(event) {
     const currentResultIndex = event.resultIndex;
-    const spokenText = event.results[currentResultIndex][0].transcript.toLowerCase().trim();
-    console.log("Raw Text Input Received: " + spokenText);
-
-    // END-USER REQUIREMENTS LOOKAHEAD FIX: 
-    // Splits on " and " ONLY if followed by system action keywords to keep items like "apples and milk" unified.
-    const commandSplitRegex = /\s+and\s+(?=go to|add task|delete task|add meeting|delete meeting|dark mode|light mode)/gi;
+    const spokenText = event.results[currentResultIndex][0].transcript;
+    
+    const commandSplitRegex = /\s+and\s+(?=go to task|go to tasks|add task|delete task|complete task|mark task|tick task|add meeting|delete meeting|complete meeting|mark meeting|tick meeting)/gi;
     const commandsArray = spokenText.split(commandSplitRegex);
     
-    commandsArray.forEach(function(cmd) {
-        executeVoiceCommand(cmd);
-    });
+    commandsArray.forEach(cmd => executeVoiceCommand(cmd));
 };
 
 window.addEventListener('load', function() {
     const pendingTask = localStorage.getItem('pendingVoiceTask');
-    if (pendingTask) {
-        localStorage.removeItem('pendingVoiceTask');
-        executeVoiceCommand("add task " + pendingTask);
-    }
-
+    if (pendingTask) { localStorage.removeItem('pendingVoiceTask'); executeVoiceCommand("add task " + pendingTask); }
+    
     const pendingMeeting = localStorage.getItem('pendingVoiceMeeting');
-    if (pendingMeeting) {
-        localStorage.removeItem('pendingVoiceMeeting');
-        executeVoiceCommand("add meeting " + pendingMeeting);
-    }
+    if (pendingMeeting) { localStorage.removeItem('pendingVoiceMeeting'); executeVoiceCommand("add meeting " + pendingMeeting); }
+    
+    const pendingCompTask = localStorage.getItem('pendingCompleteTask');
+    if (pendingCompTask) { localStorage.removeItem('pendingCompleteTask'); executeVoiceCommand("complete task " + pendingCompTask); }
+    
+    const pendingCompMeet = localStorage.getItem('pendingCompleteMeeting');
+    if (pendingCompMeet) { localStorage.removeItem('pendingCompleteMeeting'); executeVoiceCommand("complete meeting " + pendingCompMeet); }
 
-    const pendingDeleteTask = localStorage.getItem('pendingVoiceDeleteTask');
-    if (pendingDeleteTask) {
-        localStorage.removeItem('pendingVoiceDeleteTask');
-        executeVoiceCommand("delete task " + pendingDeleteTask);
-    }
-
-    const pendingDeleteMeeting = localStorage.getItem('pendingVoiceDeleteMeeting');
-    if (pendingDeleteMeeting) {
-        localStorage.removeItem('pendingVoiceDeleteMeeting');
-        executeVoiceCommand("delete meeting " + pendingDeleteMeeting);
-    }
-
-    const micShouldBeActive = localStorage.getItem('micActiveState');
-    if (micShouldBeActive === 'true') {
+    if (localStorage.getItem('micActiveState') === 'true') {
         setTimeout(function() {
             try {
                 recognition.start();
@@ -248,6 +254,8 @@ recognition.onend = function() {
         updateMicButtonUI(false);
         isListening = false;
     } else {
-        try { recognition.start(); } catch(e) {}
+        setTimeout(function() {
+            try { recognition.start(); } catch(e) {}
+        }, 300);
     }
 };

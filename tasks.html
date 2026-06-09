@@ -9,100 +9,106 @@
 <div class="container">
     <div class="sidebar">
         <h2>AI Workspace</h2>
-        <a href="index.html">
-            <i class="fa fa-home"></i> Dashboard </a>
-        <a href="tasks.html">
-            <i class="fa fa-list"></i> Tasks </a>
-        <a href="meetings.html">
-            <i class="fa fa-calendar"></i> Meetings </a>
-        <a href="analytics.html">
-            <i class="fa fa-chart-bar"></i> Analytics </a>
-        <a href="settings.html">
-            <i class="fa fa-gear"></i> Settings </a>
+        <a href="index.html"><i class="fa fa-home"></i> Dashboard</a>
+        <a href="tasks.html" class="active"><i class="fa fa-list"></i> Tasks</a>
+        <a href="meetings.html"><i class="fa fa-calendar"></i> Meetings</a>
+        <a href="analysis.html"><i class="fa fa-chart-bar"></i> Analysis</a>
     </div>
     <div class="main">
-        <div class="task-box">
-            <h1>Tasks</h1>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-    <button id="voiceBtn" style="background-color: #8b5cf6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-        <i class="fa fa-microphone"></i> Start Voice Command
-    </button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h1>Tasks Workspace</h1>
+            <button id="voiceBtn" style="background-color: #8b5cf6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <i class="fa fa-microphone"></i> Start Voice Command
+            </button>
+        </div>
+        
+        <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+            <input type="text" id="taskInput" placeholder="Write down a manual task checkpoint..." style="flex: 1;">
+            <button id="addTaskBtn" style="background-color: #8b5cf6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer;">Add Task</button>
+        </div>
+
+        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px;">
+                <h3 style="color: #a78bfa; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 8px;">Active Operational Tasks</h3>
+                <ul id="taskList" style="list-style: none; padding: 0;"></ul>
+            </div>
+            <div style="flex: 1; min-width: 300px;">
+                <h3 style="color: #10b981; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 8px;">Completed Records</h3>
+                <ul id="completedTaskList" style="list-style: none; padding: 0; opacity: 0.7;"></ul>
+            </div>
+        </div>
+    </div>
 </div>
-            <input type="text" id="taskinput" placeholder="Task Name" style="width: 40%; padding: 10px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #f7f5f5; color: black;"> 
-           
-            <button id="addtaskbutton" style="background-color: #8b5cf6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">Add Task</button>
-            
-            <ul id="tasklist" style="list-style-type: none; padding: 0; margin-top: 20px;">
-                </ul>
- <script>
-    const taskinput = document.getElementById('taskinput');
-    const addtaskbutton = document.getElementById('addtaskbutton');
-    const tasklist = document.getElementById('tasklist');
+
+<script>
+    const taskinput = document.getElementById('taskInput');
+    const addtaskbutton = document.getElementById('addTaskBtn');
+    const tasklist = document.getElementById('taskList');
+    const completedTaskList = document.getElementById('completedTaskList');
 
     let tasksArray = JSON.parse(localStorage.getItem('globalTasks')) || [];
 
-    // Auxiliary calculations loop function
     function internalMetricSync() {
-        const currentTasks = JSON.parse(localStorage.getItem('globalTasks')) || [];
-        const currentMeetings = JSON.parse(localStorage.getItem('globalMeetings')) || [];
+        const tasks = JSON.parse(localStorage.getItem('globalTasks')) || [];
+        const meetings = JSON.parse(localStorage.getItem('globalMeetings')) || [];
         
-        const incompleteT = currentTasks.filter(t => !t.completed).length;
-        const incompleteM = currentMeetings.filter(m => !m.completed).length;
+        const incompleteTasks = tasks.filter(t => !t.completed).length;
+        const incompleteMeetings = meetings.filter(m => !m.completed).length;
         
-        const totalItems = currentTasks.length + currentMeetings.length;
-        const completedItems = currentTasks.filter(t => t.completed).length + currentMeetings.filter(m => m.completed).length;
+        const totalItems = tasks.length + meetings.length;
+        const completedItems = tasks.filter(t => t.completed).length + meetings.filter(m => m.completed).length;
         const rate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
         
         const todayStr = new Date().toISOString().split('T')[0];
-        const historyDb = JSON.parse(localStorage.getItem('analyticsHistory')) || {};
+        const historyDb = JSON.parse(localStorage.getItem('analysisHistory')) || {};
         historyDb[todayStr] = {
-            incompleteTasks: incompleteT,
-            incompleteMeetings: incompleteM,
+            incompleteTasks: incompleteTasks,
+            incompleteMeetings: incompleteMeetings,
             rate: rate
         };
-        localStorage.setItem('analyticsHistory', JSON.stringify(historyDb));
+        localStorage.setItem('analysisHistory', JSON.stringify(historyDb));
     }
 
     function saveAndRenderTasks() {
+        tasklist.innerHTML = '';
+        completedTaskList.innerHTML = '';
         tasksArray = JSON.parse(localStorage.getItem('globalTasks')) || [];
-        tasklist.innerHTML = "";
-        
-        tasksArray.forEach(function(task, index) {
+
+        tasksArray.forEach((task, index) => {
             const newLi = document.createElement('li');
-            newLi.style.backgroundColor = "#1e293b";
-            newLi.style.padding = "15px";
-            newLi.style.marginBottom = "10px";
-            newLi.style.borderRadius = "8px";
-            newLi.style.display = "flex";
-            newLi.style.justifyContent = "space-between";
-            newLi.style.alignItems = "center";
+            newLi.className = 'card task-box';
+            newLi.style.cssText = 'display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; margin-bottom: 12px; background-color: #1e293b;';
 
-            const taskspan = document.createElement('span');
-            taskspan.textContent = task.name;
-            taskspan.style.cursor = "pointer";
+            const leftWrapper = document.createElement('div');
+            leftWrapper.style.cssText = 'display: flex; align-items: center; gap: 15px;';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = task.completed;
+            checkbox.style.cssText = 'width: 18px; height: 18px; cursor: pointer;';
             
-            if (task.completed) {
-                taskspan.style.textDecoration = "line-through";
-                taskspan.style.color = "#64748b";
-            } else {
-                taskspan.style.color = "white";
-            }
-
-            taskspan.addEventListener('click', function() {
-                tasksArray[index].completed = !tasksArray[index].completed;
+            checkbox.addEventListener('change', function() {
+                tasksArray[index].completed = checkbox.checked;
                 localStorage.setItem('globalTasks', JSON.stringify(tasksArray));
                 internalMetricSync();
                 saveAndRenderTasks();
+                if (typeof renderLiveAnalysis === 'function') renderLiveAnalysis();
             });
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = task.name;
+            textSpan.style.fontSize = '16px';
+            if (task.completed) {
+                textSpan.style.textDecoration = 'line-through';
+                textSpan.style.color = '#64748b';
+            }
+
+            leftWrapper.appendChild(checkbox);
+            leftWrapper.appendChild(textSpan);
 
             const deletetaskbutton = document.createElement('button');
             deletetaskbutton.textContent = 'Delete'; 
-            deletetaskbutton.style.backgroundColor = 'red';   
-            deletetaskbutton.style.color = 'white';           
-            deletetaskbutton.style.border = 'none';           
-            deletetaskbutton.style.padding = '5px 10px';      
-            deletetaskbutton.style.borderRadius = '4px';      
-            deletetaskbutton.style.cursor = 'pointer';        
+            deletetaskbutton.style.cssText = 'background-color: red; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;';
 
             deletetaskbutton.addEventListener('click', function() {
                 tasksArray.splice(index, 1);
@@ -111,9 +117,14 @@
                 saveAndRenderTasks();
             });
 
-            newLi.appendChild(taskspan);
+            newLi.appendChild(leftWrapper);
             newLi.appendChild(deletetaskbutton);
-            tasklist.appendChild(newLi);
+
+            if (!task.completed) {
+                tasklist.appendChild(newLi);
+            } else {
+                completedTaskList.appendChild(newLi);
+            }
         });
     }
 
@@ -129,8 +140,6 @@
 
     saveAndRenderTasks();
 </script>
-<script src="settings.js"></script>
 <script src="voice.js"></script>
-     
 </body>
 </html>
